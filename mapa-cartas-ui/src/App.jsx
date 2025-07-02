@@ -114,7 +114,7 @@ const moveSelectedCardTo = (q, r) => {
       name: selectedCard.name,
       rarity: selectedCard.rarity,
       stats: finalStats,
-      efectos: selectedCard.efectos || cardInfo?.efectos,
+      effects: selectedCard.effects || cardInfo?.effects,
       image: selectedCard.image || cardInfo?.image
     }
   });
@@ -170,7 +170,7 @@ const handleDrop = (e, q, r) => {
         name: cardName,
         rarity: cardRarity,
         stats: finalStats,
-        efectos: fullCardData?.efectos,
+        effects: fullCardData?.effects,
         image: fullCardData?.image
       }
     }));
@@ -326,7 +326,7 @@ const handleDrop = (e, q, r) => {
                   rarity={cardData.rarity}
                   description={cards.find(c => c.id.toString() === cardData.id.toString())?.description}
                   stats={cardData.stats || cards.find(c => c.id.toString() === cardData.id.toString())?.stats}
-                  efectos={cardData.efectos || cards.find(c => c.id.toString() === cardData.id.toString())?.efectos}
+                  effects={cardData.effects || cards.find(c => c.id.toString() === cardData.id.toString())?.effects}
                   image={cards.find(c => c.id.toString() === cardData.id.toString())?.image}
                   isSmall={true}
                   inBoard={true}
@@ -400,7 +400,7 @@ const handleDrop = (e, q, r) => {
               rarity={card.rarity}
               description={card.description}
               stats={card.stats}
-              efectos={card.efectos}
+              effects={card.effects}
               isSmall={true}
             />
           );

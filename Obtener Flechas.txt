@@ -1,0 +1,14 @@
+<div class="movements-container">
+                                    <div class="movements-title">💫 Direcciones disponibles:</div>
+                                    <div style="padding: 10px;">
+                                        ${Array.isArray(card.flechas) ? 
+                                            card.flechas.map(f => `<span style="margin:3px;padding:2px 8px;background:#f0f0f0;border-radius:12px;">${
+                                                typeof f === 'string' ? f : (f.direction || 'desconocido')
+                                            }</span>`).join(' ') : 
+                                            'Formato de flechas no reconocido'
+                                        }
+                                    </div>
+                                </div>
+
+
+ponerlo en linea 398 de viewCards.html
