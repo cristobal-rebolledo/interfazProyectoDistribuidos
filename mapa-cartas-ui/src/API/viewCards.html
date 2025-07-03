@@ -197,16 +197,15 @@
         <div class="filters">
             <select id="typeFilter">
                 <option value="">Todos los tipos</option>
-                <option value="Personaje">Personaje</option>
-                <option value="Aliado">Aliado</option>
-                <option value="Hechizo">Hechizo</option>
-                <option value="Objeto">Objeto</option>
+                <option value="legend">Personaje</option>
+                <option value="unit">Aliado</option>
+                <option value="spell">Hechizo</option>
             </select>
-            
+
+            <label for="rarityFilter">Raridad:</label>        
             <select id="rarityFilter">
                 <option value="">Todas las rarezas</option>
                 <option value="Comun">Comun</option>
-                <option value="Infrecuente">Infrecuente</option>
                 <option value="Rara">Rara</option>
                 <option value="Epica">Epica</option>
                 <option value="Legendaria">Legendaria</option>
@@ -234,11 +233,11 @@
         const statusContainer = document.getElementById('statusContainer');
         
         // Mapeo de tipos para mostrar el nombre completo
+        // En viewCards.html, busca esta sección y actualízala
         const typeNames = {
-            'Personaje': 'Personaje',
-            'Aliado': 'Aliado',
-            'Hechizo': 'Hechizo',
-            'Objeto': 'Objeto',
+            'legend': 'Personaje',
+            'unit': 'Aliado', 
+            'spell': 'Hechizo'
         };
         
         // Estado de la aplicación
@@ -332,33 +331,33 @@
                                 </div>
                             ` : ''}
 
-                            ${(card.stats && (card.stats.attack !== undefined || card.stats.health !== undefined || card.stats.cost !== undefined || card.stats.actions !== undefined)) ? `
+                            ${( card.attack !== undefined || card.health !== undefined || card.cost !== undefined || card.actions !== undefined) ? `
                                 <div class="card-stats">
-                                    ${(card.stats.attack !== undefined) ? `
+                                    ${(card.attack !== undefined) ? `
                                         <div class="stat">
                                             <div class="stat-icon">⚔️</div>
-                                            <div class="stat-value">${card.stats.attack}</div>
+                                            <div class="stat-value">${card.attack}</div>
                                             <div>Ataque</div>
                                         </div>
                                     ` : ''}
-                                    ${(card.stats.health !== undefined) ? `
+                                    ${(card.health !== undefined) ? `
                                         <div class="stat">
                                             <div class="stat-icon">❤️</div>
-                                            <div class="stat-value">${card.stats.health}</div>
+                                            <div class="stat-value">${card.health}</div>
                                             <div>Vida</div>
                                         </div>
                                     ` : ''}
-                                    ${(card.stats.cost !== undefined) ? `
+                                    ${(card.cost !== undefined) ? `
                                         <div class="stat">
                                             <div class="stat-icon">💎</div>
-                                            <div class="stat-value">${card.stats.cost}</div>
+                                            <div class="stat-value">${card.cost}</div>
                                             <div>Costo</div>
                                         </div>
                                     ` : ''}
-                                    ${(card.stats.actions !== undefined) ? `
+                                    ${(card.actions !== undefined) ? `
                                         <div class="stat">
                                             <div class="stat-icon">🏃</div>
-                                            <div class="stat-value">${card.stats.actions}</div>
+                                            <div class="stat-value">${card.actions}</div>
                                             <div>Actions</div>
                                         </div>
                                     ` : ''}

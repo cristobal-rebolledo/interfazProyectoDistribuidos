@@ -6,12 +6,73 @@
 const db = require('./dbConnection');
 
 /**
+ * Función de diagnóstico para verificar la estructura de las tablas
+ * relacionadas con las cartas
+ */
+const verifyTablesStructure = async () => {
+  try {
+    console.log('Verificando estructura de tablas...');
+    
+    // Verificar tabla Personaje
+    const personajeCheck = await db.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'Personaje'
+      );
+    `);
+    
+    console.log('¿Existe la tabla Personaje?', personajeCheck.rows[0].exists);
+    
+    // Verificar tabla Hechizo
+    const hechizoCheck = await db.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'Hechizo'
+      );
+    `);
+    
+    console.log('¿Existe la tabla Hechizo?', hechizoCheck.rows[0].exists);
+    
+    // Si las tablas existen, verificar sus columnas
+    if (personajeCheck.rows[0].exists) {
+      const personajeColumns = await db.query(`
+        SELECT column_name, data_type 
+        FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'Personaje';
+      `);
+      
+      console.log('Columnas de la tabla Personaje:', personajeColumns.rows);
+    }
+    
+    if (hechizoCheck.rows[0].exists) {
+      const hechizoColumns = await db.query(`
+        SELECT column_name, data_type 
+        FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'Hechizo';
+      `);
+      
+      console.log('Columnas de la tabla Hechizo:', hechizoColumns.rows);
+    }
+    
+  } catch (error) {
+    console.error('Error al verificar estructura de tablas:', error);
+  }
+};
+
+/**
  * Fetches all cards from the database
  * @returns {Promise<Array>} - List of cards
  */
 const getAllCards = async () => {
   try {
     console.log('Executing getAllCards...');
+    
+    // Ejecutar verificación de tablas al inicio
+    await verifyTablesStructure();
     // Fetch basic information of all cards
     const cardsResult = await db.query(`
       SELECT c.*, i."Ruta" as imagePath 
@@ -26,10 +87,28 @@ const getAllCards = async () => {
     // For each card, fetch its specific type and details
     for (const card of cardsResult.rows) {
       // Check if the card is a Spell
-      const spellResult = await db.query('SELECT h."IdCarta", h."Costo" as cost FROM "Hechizo" h WHERE h."IdCarta" = $1', [card.IdCarta]);
-      if (spellResult.rows.length > 0) {
-        card.type = 'spell';
-        card.typeDetails = spellResult.rows[0];
+      try {
+        console.log(`Consultando hechizo para card ID: ${card.IdCarta}`);
+        const spellResult = await db.query(`
+          SELECT * FROM "Hechizo" WHERE "IdCarta" = $1
+        `, [card.IdCarta]);
+        
+        if (spellResult.rows.length > 0) {
+          card.type = 'spell';
+          // Mapeo manual para evitar problemas con nombres de columnas
+          const spellData = spellResult.rows[0];
+          console.log(`Datos de hechizo recibidos:`, spellData);
+          
+          card.typeDetails = {
+            cost: spellData.Costo || null,
+            attack: null, // Los hechizos típicamente no tienen ataque
+            health: null, // Los hechizos típicamente no tienen vida
+            actions: null // Los hechizos típicamente no tienen acciones
+          };
+        }
+      } catch (error) {
+        console.error(`Error al consultar la tabla Hechizo para IdCarta=${card.IdCarta}:`, error.message);
+        // No interrumpimos el flujo del programa, solo registramos el error
       }
 
       // Check if the card is an Ally with an improved query
@@ -46,14 +125,29 @@ const getAllCards = async () => {
       }
 
       // Check if the card is a Character
-      const characterResult = await db.query('SELECT * FROM "Personaje" WHERE "IdCarta" = $1', [card.IdCarta]);
-      if (characterResult.rows.length > 0) {
-        card.type = 'legend';
-        card.typeDetails = {
-            attack: characterResult.rows[0].Ataque || null,
-            health: characterResult.rows[0].Vida || null,
-            actions: characterResult.rows[0].Acciones || null
+      try {
+        console.log(`Consultando personaje para card ID: ${card.IdCarta}`);
+        // Consulta más robusta con mejor manejo de errores
+        const characterResult = await db.query(`
+          SELECT * FROM "Personaje" WHERE "IdCarta" = $1
+        `, [card.IdCarta]);
+        
+        if (characterResult.rows.length > 0) {
+          card.type = 'legend';
+          // Mapeo manual para evitar problemas con nombres de columnas
+          const charData = characterResult.rows[0];
+          console.log(`Datos de personaje recibidos:`, charData);
+          
+          card.typeDetails = {
+            cost: charData.Costo || null,
+            attack: charData.Ataque || null,
+            health: charData.Vida || null,
+            actions: charData.Acciones || null
           };
+        }
+      } catch (error) {
+        console.error(`Error al consultar la tabla Personaje para IdCarta=${card.IdCarta}:`, error.message);
+        // No interrumpimos el flujo del programa, solo registramos el error
       }
 
       // Query to fetch effects and arrows
@@ -123,6 +217,7 @@ const getAllCards = async () => {
 };
 
 
+
 /**
  * Obtiene todos los efectos de la base de datos
  * @returns {Promise<Array>} - Lista de efectos
@@ -164,6 +259,6 @@ module.exports = {
   getAllCards,
   getAllEfectos,
   getCartasByEfecto,
- 
+  verifyTablesStructure // Exportamos la función de diagnóstico
 };
 

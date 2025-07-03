@@ -35,19 +35,15 @@ router.get('/cards', async (req, res) => {
             
             return {
                 id: card.IdCarta,
-                type: card.type === 'Spell' ? 'Hechizo' :
-                    card.type === 'Ally' ? 'Aliado' :
-                    card.type === 'Character' ? 'Personaje' : 'Objeto',
+                type: card.type ,
                 color: getColorByRarity(card.Rareza),
                 name: card.Nombre || 'Unnamed',
                 rarity: card.Rareza || 'Common',
                 image: card.imagePath || null,
-                stats: {
-                    attack: card.typeDetails?.attack,
-                    health: card.typeDetails?.health,
-                    cost: card.typeDetails?.cost,
-                    actions: card.typeDetails?.actions
-                },
+                attack: card.typeDetails?.attack ,
+                health: card.typeDetails?.health,
+                cost: card.typeDetails?.cost,
+                actions: card.typeDetails?.actions,
                 effects: (() => {
                     if (!card.effects || !Array.isArray(card.effects) || card.effects.length === 0) {
                         return [];

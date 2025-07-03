@@ -20,9 +20,12 @@ async function fetchCards() {
 
         // Iterar sobre las cartas y sus efectos
 
-        const imagenes = cards.map(card => card.image);
-        console.log(imagenes);
-        /*
+        //const imagenes = cards.map(card => card.image);
+        //console.log(imagenes);
+
+        cards.forEach(card => {
+    console.log(`Card ID: ${card.id}, Type: ${card.type}, Name: ${card.attack}, Health: ${card.health}, Cost: ${card.cost}`);
+});
         cards.forEach(card => {
             console.log(`Carta: ${card.name}`);
             if (card.effects && card.effects.length > 0) {
@@ -32,7 +35,7 @@ async function fetchCards() {
             } else {
                 console.log('  Sin efectos');
             }
-        });*/
+        });
     } catch (error) {
         console.error('Error al cargar las cartas:', error);
     }

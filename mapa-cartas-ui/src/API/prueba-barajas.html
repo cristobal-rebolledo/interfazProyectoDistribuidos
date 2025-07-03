@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba Rápida - Cliente de Barajas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .output {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Prueba Rápida del Cliente de Barajas</h1>
+        
+        <p>Esta página permite probar rápidamente las funciones del cliente de barajas. Asegúrate de que el servidor esté ejecutándose en el puerto 3030.</p>
+        
+        <h2>Funciones API Directas</h2>
+        <div style="margin-bottom: 20px;">
+            <button onclick="testGetBarajas()">📥 Obtener Todas las Barajas</button>
+            <button onclick="testGetBarajasByUser()">👤 Obtener Barajas del Usuario 1</button>
+            <button onclick="testCreateBaraja()">➕ Crear Baraja de Prueba</button>
+        </div>
+        
+        <h2>BarajaManager (con eventos)</h2>
+        <div style="margin-bottom: 20px;">
+            <button onclick="testManagerLoadBarajas()">📥 Cargar con Manager</button>
+            <button onclick="testManagerCreateBaraja()">➕ Crear con Manager</button>
+            <button onclick="testManagerSelectBaraja()">🎯 Seleccionar Primera Baraja</button>
+        </div>
+        
+        <h2>Resultados</h2>
+        <div id="output" class="output">Haz clic en algún botón para probar...</div>
+        
+        <h2>Estado del Manager</h2>
+        <div id="manager-state" class="output">Manager no inicializado</div>
+    </div>
+
+    <script src="../barajaClient.js"></script>
+    <script>
+        // Elemento para mostrar output
+        const outputEl = document.getElementById('output');
+        const managerStateEl = document.getElementById('manager-state');
+        
+        // Crear instancia del manager
+        const manager = new BarajaManager();
+        
+        // Configurar listeners del manager
+        manager.addEventListener('barajasLoaded', (event) => {
+            log(`✅ Manager: ${event.detail.length} barajas cargadas`, 'success');
+            updateManagerState();
+        });
+        
+        manager.addEventListener('barajaSelected', (event) => {
+            const { baraja, cartas } = event.detail;
+            log(`✅ Manager: Baraja "${baraja.name}" seleccionada (${cartas.length} cartas)`, 'success');
+            updateManagerState();
+        });
+        
+        manager.addEventListener('barajaCreated', (event) => {
+            log(`✅ Manager: Baraja "${event.detail.name}" creada`, 'success');
+            updateManagerState();
+        });
+        
+        manager.addEventListener('error', (event) => {
+            log(`❌ Manager Error: ${event.detail.message}`, 'error');
+        });
+        
+        // Función para logging
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : (type === 'error' ? 'error' : '');
+            outputEl.innerHTML += `[${timestamp}] ${message}\n`;
+            outputEl.className = `output ${className}`;
+            outputEl.scrollTop = outputEl.scrollHeight;
+        }
+        
+        function updateManagerState() {
+            const barajas = manager.getBarajas();
+            const currentBaraja = manager.getCurrentBaraja();
+            const currentCartas = manager.getCurrentCartasBaraja();
+            
+            managerStateEl.innerHTML = `Barajas cargadas: ${barajas.length}
+Baraja seleccionada: ${currentBaraja ? currentBaraja.name : 'Ninguna'}
+Cartas en baraja actual: ${currentCartas.length}`;
+        }
+        
+        // Funciones de prueba - API directa
+        async function testGetBarajas() {
+            log('🔄 Probando getBarajas()...');
+            try {
+                const barajas = await window.BarajaAPI.getBarajas();
+                log(`✅ Éxito: Obtenidas ${barajas.length} barajas`, 'success');
+                log(JSON.stringify(barajas, null, 2));
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testGetBarajasByUser() {
+            log('🔄 Probando getBarajasByUser(1)...');
+            try {
+                const barajas = await window.BarajaAPI.getBarajasByUser(1);
+                log(`✅ Éxito: Obtenidas ${barajas.length} barajas del usuario 1`, 'success');
+                log(JSON.stringify(barajas, null, 2));
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testCreateBaraja() {
+            log('🔄 Probando createBaraja()...');
+            try {
+                const nuevaBaraja = await window.BarajaAPI.createBaraja({
+                    name: `Baraja de Prueba ${Date.now()}`,
+                    userId: 1,
+                    sleevePath: 'test_sleeve.jpg'
+                });
+                log(`✅ Éxito: Baraja creada con ID ${nuevaBaraja.id}`, 'success');
+                log(JSON.stringify(nuevaBaraja, null, 2));
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Funciones de prueba - Manager
+        async function testManagerLoadBarajas() {
+            log('🔄 Probando Manager.loadBarajas()...');
+            try {
+                await manager.loadBarajas();
+                // El resultado se mostrará por el evento
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testManagerCreateBaraja() {
+            log('🔄 Probando Manager.createBaraja()...');
+            try {
+                await manager.createBaraja({
+                    name: `Baraja Manager ${Date.now()}`,
+                    userId: 1,
+                    sleevePath: 'manager_sleeve.jpg'
+                });
+                // El resultado se mostrará por el evento
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testManagerSelectBaraja() {
+            log('🔄 Probando Manager.selectBaraja()...');
+            const barajas = manager.getBarajas();
+            
+            if (barajas.length === 0) {
+                log('❌ No hay barajas disponibles. Carga las barajas primero.', 'error');
+                return;
+            }
+            
+            try {
+                await manager.selectBaraja(barajas[0].id);
+                // El resultado se mostrará por el evento
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Inicializar
+        log('🚀 Cliente de Barajas inicializado y listo para pruebas');
+        updateManagerState();
+    </script>
+</body>
+</html>

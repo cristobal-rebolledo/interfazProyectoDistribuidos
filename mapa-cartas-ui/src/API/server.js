@@ -6,6 +6,8 @@
 const express = require('express');
 const cors = require('cors');
 const cardRoutes = require('./routes/cardRoutes');
+const barajaRoutes = require('./routes/barajaRoutes');
+
 
 // Inicializar la aplicación de Express
 const app = express();
@@ -18,6 +20,7 @@ app.use(express.urlencoded({ extended: true })); // Parsear solicitudes con form
 
 // Rutas
 app.use('/api', cardRoutes);
+app.use('/api', barajaRoutes);
 
 // Ruta de prueba para verificar que el servidor está funcionando
 app.get('/', (req, res) => {
