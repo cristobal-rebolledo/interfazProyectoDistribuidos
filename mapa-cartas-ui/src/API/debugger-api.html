@@ -382,10 +382,8 @@
                         id: effect.id || effect.effectId,
                         name: effect.name || 'Sin nombre',
                         description: effect.description || 'Sin descripción',
-                        amount: effect.amount || 1,
+                        value : effect.amount || 1,
                         target: effect.target || null,
-                        duration: effect.duration || null,
-                        repeatable: effect.repeatable || false,
                         trigger: effect.trigger || null
                     }))
                     : [];

@@ -60,6 +60,7 @@ router.get('/cards', async (req, res) => {
                                     id: effect.effectId,
                                     name: effect.name,
                                     description: effect.description,
+                                    type: effect.type,
                                     amount: effect.amount || 1, // Usar la cantidad original, no sumar
                                     target: effect.target,
                                     duration: effect.duration,
@@ -76,8 +77,8 @@ router.get('/cards', async (req, res) => {
                 arrows: card.arrows || [],
                 movements: card.arrows?.map(arrow => ({
                     direction: arrow.direction,
-                    range: arrow.range || 1,
-                    targetType: arrow.targetType
+                    //range: arrow.range || 1,
+                    //targetType: arrow.targetType
                 })) || []
             };
         });

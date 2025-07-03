@@ -88,6 +88,7 @@ const getAllCards = async () => {
         name: row.Nombre,
         description: row.Descripcion,
         isBasic: row.EsBasico,
+        type: row.Tipo,
         amount: row.amount,
         target: row.target,
         duration: row.duration,

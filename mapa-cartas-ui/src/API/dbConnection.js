@@ -12,7 +12,7 @@ require('dotenv').config();
 const pool = new Pool({
   host: process.env.DB_HOST || 'localhost',
   port: process.env.DB_PORT || 5432,
-  database: 'Card Details DB',
+  database: 'CardDetails2',
   user: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD || 'tobybd',
   max: 20,
