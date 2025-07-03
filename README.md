@@ -1,1 +1,1 @@
-# interfazProyectoDistribuidos
+# ProyectoDistribuidos
